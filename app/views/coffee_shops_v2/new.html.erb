@@ -1,0 +1,129 @@
+<style>
+#map #infowindow-content {
+  display: inline;
+}
+
+#infowindow-content {
+  display: none;
+}
+</style>
+<h2 class="text-3xl font-bold text-gray-900">
+  New Coffee Shop
+</h2>
+
+<div class"mt-4 text-center text-sm text-gray-600">
+  <%= render "components/alert", alerts: @coffee_shop.errors.full_messages if @coffee_shop.errors.full_messages.count > 0 %>
+</div>
+
+<div class="bg-white overflow-hidden shadow rounded-lg mt-4">
+  <div class="px-4 py-5 sm:p-6">
+    <div>
+      <%= form_for @coffee_shop,
+        url: coffee_shops_path(tab: "advanced"),
+        method: :post,
+        data: {
+          controller: :maps,
+          action: "google-maps-callback@window->maps#initializeMap"
+        } do |f| %>
+        <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+          <div class="space-y-6 sm:space-y-5">
+            <div>
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Basic Information
+              </h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Almost all coffee shop that can serve freshly brewed arabica
+                coffee such as hot american is eligible to be listed here.
+              </p>
+              <p class="mt-2 text-sm text-gray-500">
+                <span class="font-bold">We have the right to reject</span>
+                a submission that we think is not suitable for us.
+              </p>
+            </div>
+
+            <div class="space-y-6 sm:space-y-5">
+              <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                <%= f.label :name, class: "block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2" do %>
+                  Cofee Shop's Name*
+                  <div class="mt-1 text-sm text-gray-500">
+                    Just the name and nothing else
+                  </div>
+                <% end %>
+                <div class="mt-1">
+                  <%= f.text_field :name,
+                    required: true,
+                    class: "max-w-lg block w-full shadow-sm focus:ring-brown-500 focus:border-brown-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md" %>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-6 sm:space-y-5">
+              <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                <%= f.label :name, class: "block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2" do %>
+                  Location*
+                <% end %>
+                <div class="mt-1 sm:col-span-2">
+                  <fieldset>
+                    <legend class="sr-only">Plan</legend>
+                    <div class="space-y-5">
+                      <div class="relative flex items-start">
+
+                        <div class="flex h-6 items-center">
+                          <input id="small" aria-describedby="small-description" name="plan" type="radio" checked class="h-4 w-4 border-gray-300 text-brown-600 focus:ring-brown-600">
+                        </div>
+                        <div class="ml-3 text-sm leading-6">
+                          <label for="small" class="font-medium text-gray-900">Available on Google Maps</label>
+                          <p id="small-description" class="text-gray-500">For business that we can search on Google Maps</p>
+                        </div>
+                      </div>
+                      <div class="relative ml-7 h-80">
+                        <div style="display: none">
+                          <input
+                              id="pac-input"
+                              class="ml-2 mt-2 max-w-lg block w-11/12 shadow-sm focus:ring-brown-500 focus:border-brown-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md"
+                              type="text"
+                              placeholder="Enter a location"
+                              data-action="keydown->maps#preventSubmit"
+                              />
+                        </div>
+                        <div id="map" class="h-full"></div>
+                        <div id="infowindow-content">
+                          <span id="place-name" class="font-bold"></span><br />
+                          <strong>Place ID:</strong> <span id="place-id"></span><br />
+                          <span id="place-address"></span>
+                        </div>
+                      </div>
+                      <div class="relative flex items-start">
+                        <div class="flex h-6 items-center">
+                          <input id="medium" aria-describedby="medium-description" name="plan" type="radio" class="h-4 w-4 border-gray-300 text-brown-600 focus:ring-brown-600">
+                        </div>
+                        <div class="ml-3 text-sm leading-6">
+                          <label for="medium" class="font-medium text-gray-900">Only latitude and longitude available</label>
+                          <p id="medium-description" class="text-gray-500">For mobile business / not registered with Google</p>
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-5">
+            <div class="flex justify-end">
+              <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brown-600 hover:bg-brown-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brown-500">
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{Rails.application.credentials.dig(:google_api_key, :web)}&libraries=places&callback=dispatchMapsEvent",
+  async: true,
+  defer: true,
+  "data-turbolinks-eval": false %>

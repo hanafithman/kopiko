@@ -59,6 +59,7 @@ Rails.application.routes.draw do
       end
     end
   end
+  resources :coffee_shops_v2, only: [:new, :create]
   resources :users, path: "u", only: [:show, :edit, :update]
 
   get "/coffee_shops/:id", to: redirect("/%{id}", status: 301)
