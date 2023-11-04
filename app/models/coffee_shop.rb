@@ -12,7 +12,7 @@ class CoffeeShop < ApplicationRecord
     :waze,
     :whatsapp
 
-  attr_accessor :logo_url
+  attr_accessor :logo_url, :latitude, :longitude, :google_place_id
 
   enum(
     status: {

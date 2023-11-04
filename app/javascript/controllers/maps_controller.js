@@ -1,83 +1,203 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Ref: https://github.com/driftingruby/236-google-maps-api-with-stimulusjs
-// https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder
 export default class extends Controller {
-  static targets = ["field", "map"]
+  static targets = [
+    "googlePlaceId",
+    "latitude",
+    "locationContainer",
+    "locationInput",
+    "locationMap",
+    "longitude",
+    "placeContainer",
+    "placeInput",
+    "placeMapContainer",
+  ]
+
+  klccCoordinates = { lat: 3.1578, lng: 101.7119 }
 
   connect() {
-    console.log("connect")
-
     if (typeof (google) != "undefined"){
       this.initializeMap()
     }
   }
 
   initializeMap() {
-    console.log('init')
-    this.map()
+    this.placeMap()
+    this.placeMarker()
+    this.placeAutoComplete()
+
+    this.locationMap()
+    this.locationMarker()
+    this.locationAutoComplete()
   }
 
-  map() {
-    console.log("map")
+  placeMap() {
+    if (this._placeMap != undefined || !this.hasPlaceMapContainerTarget) {
+      return this._placeMap
+    }
 
-    const map = new google.maps.Map(document.getElementById("map"), {
-      center: { lat: -33.8688, lng: 151.2195 },
+    this._placeMap = new google.maps.Map(this.placeMapContainerTarget, {
+      center: this.klccCoordinates,
       zoom: 13,
       disableDefaultUI: true,
       zoomControl: true,
-    });
+    })
 
-    const input = document.getElementById("pac-input");
-    // Specify just the place data fields that you need.
-    const autocomplete = new google.maps.places.Autocomplete(input, {
-      fields: ["place_id", "geometry", "formatted_address", "name"],
-    });
+    this._placeMap.controls[google.maps.ControlPosition.TOP_LEFT].push(
+      // Doesn't work with target when navigating in/out of page
+      // Turbo problem? Connected more than once in a single click
+      document.getElementById("maps-place-input")
+    )
 
-    autocomplete.bindTo("bounds", map);
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+    return this._placeMap
+  }
 
-    const infowindow = new google.maps.InfoWindow();
-    const infowindowContent = document.getElementById("infowindow-content");
+  placeMarker() {
+    if (this._placeMarker != undefined) { return this._placeMarker }
 
-    infowindow.setContent(infowindowContent);
+    this._placeMarker = new google.maps.Marker({ map: this.placeMap() })
 
-    const marker = new google.maps.Marker({ map: map });
+    return this._placeMarker
+  }
 
-    marker.addListener("click", () => {
-      infowindow.open(map, marker);
-    });
-    autocomplete.addListener("place_changed", () => {
-      infowindow.close();
+  placeAutoComplete() {
+    if (this._placeAutoComplete != undefined || !this.hasPlaceInputTarget) {
+      return this._placeAutoComplete
+    }
 
-      const place = autocomplete.getPlace();
+    this._placeAutoComplete =
+      new google.maps.places.Autocomplete(this.placeInputTarget, {
+        componentRestrictions: { country: "my" },
+        fields: ["place_id", "geometry"],
+      })
+
+    this._placeAutoComplete.bindTo("bounds", this.placeMap())
+
+    this._placeAutoComplete.addListener("place_changed", () => {
+      const place = this._placeAutoComplete.getPlace()
 
       if (!place.geometry || !place.geometry.location) {
-        return;
+        return
       }
 
       if (place.geometry.viewport) {
-        map.fitBounds(place.geometry.viewport);
+        this.placeMap().fitBounds(place.geometry.viewport)
       } else {
-        map.setCenter(place.geometry.location);
-        map.setZoom(17);
+        this.placeMap().setCenter(place.geometry.location)
+        this.placeMap().setZoom(17)
       }
 
-      // Set the position of the marker using the place ID and location.
-      // @ts-ignore This should be in @typings/googlemaps.
-      marker.setPlace({
+      this.placeMarker().setPlace({
         placeId: place.place_id,
         location: place.geometry.location,
-      });
-      marker.setVisible(true);
-      infowindowContent.children.namedItem("place-name").textContent = place.name;
-      infowindowContent.children.namedItem("place-id").textContent =
-        place.place_id;
-      infowindow.open(map, marker);
-    });
+      })
+      this.placeMarker().setVisible(true)
+
+      this.googlePlaceIdTarget.value = place.place_id
+      this.latitudeTarget.value = place.geometry.location.lat()
+      this.longitudeTarget.value = place.geometry.location.lng()
+    })
+
+    return this._placeAutoComplete
+  }
+
+  locationMap() {
+    if (this._locationMap != undefined || !this.hasLocationMapTarget) {
+      return this._locationMap
+    }
+
+    this._locationMap = new google.maps.Map(this.locationMapTarget, {
+      center: this.klccCoordinates,
+      zoom: 13,
+      disableDefaultUI: true,
+      zoomControl: true,
+    })
+
+    this._locationMap.controls[google.maps.ControlPosition.TOP_LEFT].push(
+      // Doesn't work with target when navigating in/out of page
+      // Turbo problem? Connected more than once in a single click
+      document.getElementById("maps-location-input")
+    )
+
+    return this._locationMap
+  }
+
+  locationMarker() {
+    if (this._locationMarker != undefined) { return this._locationMarker }
+
+    this._locationMarker =
+      new google.maps.Marker({ map: this.locationMap(), draggable: true })
+    this._locationMarker.addListener("dragend", (e) => {
+      this.latitudeTarget.value = e.latLng.lat()
+      this.longitudeTarget.value = e.latLng.lng()
+    })
+
+    return this._locationMarker
+  }
+
+  locationAutoComplete() {
+    if (this._locationAutoComplete != undefined || !this.hasLocationInputTarget) {
+      return this._locationAutoComplete
+    }
+
+    this._locationAutoComplete =
+      new google.maps.places.Autocomplete(this.locationInputTarget, {
+        componentRestrictions: { country: "my" },
+        fields: ["geometry"],
+      })
+
+    this._locationAutoComplete.bindTo("bounds", this.locationMap())
+
+    this.locationMap().addListener("click", (e) => {
+      this.locationMarker().setPosition(e.latLng)
+
+      this.latitudeTarget.value = e.latLng.lat()
+      this.longitudeTarget.value = e.latLng.lng()
+    })
+
+    this._locationAutoComplete.addListener("place_changed", () => {
+      const place = this._locationAutoComplete.getPlace()
+
+      if (!place.geometry || !place.geometry.location) {
+        return
+      }
+
+      if (place.geometry.viewport) {
+        this.locationMap().fitBounds(place.geometry.viewport)
+      } else {
+        this.locationMap().setCenter(place.geometry.location)
+        this.locationMap().setZoom(17)
+      }
+
+      this.locationMarker().setPosition(place.geometry.location)
+      this.locationMarker().setVisible(true)
+
+      this.latitudeTarget.value = place.geometry.location.lat()
+      this.longitudeTarget.value = place.geometry.location.lng()
+    })
   }
 
   preventSubmit(e) {
     if (e.key == "Enter") { e.preventDefault() }
+  }
+
+  _resetMap() {
+    this.placeInputTarget.value = ""
+    this.locationInputTarget.value = ""
+    this.googlePlaceIdTarget.value = ""
+    this.latitudeTarget.value = ""
+    this.longitudeTarget.value = ""
+
+    this.placeMarker().setVisible(false)
+    this.locationMarker().setVisible(false)
+  }
+
+  toggleLocation(e) {
+    e.preventDefault()
+
+    this._resetMap()
+
+    this.locationContainerTarget.classList.toggle("hidden")
+    this.placeContainerTarget.classList.toggle("hidden")
   }
 }

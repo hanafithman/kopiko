@@ -29,6 +29,11 @@
   <%= yield(:extra_styles) if content_for?(:extra_styles) %>
   <%= yield(:extra_js) if content_for?(:extra_js) %>
 
+  <%= javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{Rails.application.credentials.dig(:google_api_key, :web)}&libraries=places&callback=dispatchMapsFormEvent",
+    async: true,
+    defer: true,
+    "data-turbolinks-eval": false %>
+
   <%= render "layouts/social_meta_tags" %>
 
   <% if Rails.env.production? && current_user&.role.nil? %>

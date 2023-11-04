@@ -64,6 +64,7 @@ Rails.application.routes.draw do
 
   get "/coffee_shops/:id", to: redirect("/%{id}", status: 301)
   get "/cs/:id", to: redirect("/%{id}", status: 301)
+  get "/new", to: "coffee_shops_v2#new", as: "new_coffee_shop_v2"
 
   constraints CoffeeShopConstraint.new do
     resources :coffee_shops, path: "", only: [:show], as: "main_coffee_shop"

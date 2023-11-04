@@ -11,9 +11,10 @@ import Tooltip from "@ryangjchandler/alpine-tooltip";
 import { Turbo } from "@hotwired/turbo-rails"
 Turbo.setProgressBarDelay(100)
 
-window.dispatchMapsEvent = function (...args) {
+window.dispatchMapsFormEvent = function (...args) {
   const event = new Event("google-maps-callback", { bubbles: true, cancelable: true });
   event.args = args;
+
   document.dispatchEvent(event);
 };
 
