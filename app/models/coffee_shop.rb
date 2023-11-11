@@ -38,6 +38,7 @@ class CoffeeShop < ApplicationRecord
   has_many :favourite_users, through: :favourites, source: :user
   has_many :opening_hours
 
+  has_one :google_location, dependent: :destroy
   has_one_attached :logo
 
   validates :slug, presence: true
