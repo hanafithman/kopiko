@@ -12,6 +12,8 @@ gem "connection_pool" # redis connection pooling
 gem "cssbundling-rails" # Bundle and process CSS [https://github.com/rails/cssbundling-rails]
 gem "chartkick" # create js charts
 gem "devise" # authentication
+gem "dry-validation" # validation
+gem "dry-monads" # monads
 gem "foreman" # process manager
 gem "geocoder" # geocoding for ahoy
 gem "google-apis-sheets_v4", require: false # Google API client for Sheets
