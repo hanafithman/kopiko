@@ -57,6 +57,7 @@ class CoffeeShop < ApplicationRecord
   after_save :update_google_place_id
 
   accepts_nested_attributes_for :coffee_shop_tags
+  accepts_nested_attributes_for :google_location
 
   has_rich_text :description
 
@@ -72,19 +73,10 @@ class CoffeeShop < ApplicationRecord
       return
     end
 
-    return if district.blank?
-
-    slug = name.parameterize
-
-    if CoffeeShop.where(slug: slug).any?
-      slug = "#{slug}-#{district.parameterize}"
-    end
-
-    if CoffeeShop.where(slug: slug).any?
-      slug = "#{slug}-#{SecureRandom.alphanumeric(5).downcase}"
-    end
-
-    self.slug = slug.downcase
+    self.slug = [
+      name.parameterize,
+      SecureRandom.alphanumeric(5).downcase
+    ].join("-")
   end
 
   def set_uuid
