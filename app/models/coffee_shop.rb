@@ -61,6 +61,12 @@ class CoffeeShop < ApplicationRecord
 
   has_rich_text :description
 
+  def google_map
+    return "#" if google_location.blank?
+
+    google_location.url
+  end
+
   def clean_urls
     self.instagram = instagram.split("/")[3].split("?")[0]
   rescue NoMethodError

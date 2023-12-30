@@ -5,6 +5,22 @@ class GoogleLocation < ApplicationRecord
 
   after_save :sync_with_google
 
+  def state
+    administrative_area_level_1
+  end
+
+  def district
+    locality
+  end
+
+  def url
+    if place_id.present?
+      "https://www.google.com/maps/place/?q=place_id:#{place_id}"
+    else
+      "https://www.google.com/maps/?q=#{lat},#{lng}"
+    end
+  end
+
   private
 
   def location_is_correct
