@@ -1,6 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
+  static values = {
+    coffeeShopName: String
+  }
+
   static targets = [
     "googlePlaceId",
     "latitude",
@@ -36,9 +40,13 @@ export default class extends Controller {
       return this._placeMap
     }
 
+    // Prefill some values for editing
+    const initialZoom = this.placeInputTarget.value ? 17 : 13
+    this.placeInputTarget.value = this.coffeeShopNameValue
+
     this._placeMap = new google.maps.Map(this.placeMapContainerTarget, {
-      center: this.klccCoordinates,
-      zoom: 13,
+      center: this._initialLocation(),
+      zoom: initialZoom,
       disableDefaultUI: true,
       zoomControl: true,
     })
@@ -179,6 +187,17 @@ export default class extends Controller {
 
   preventSubmit(e) {
     if (e.key == "Enter") { e.preventDefault() }
+  }
+
+  _initialLocation() {
+    if (this.latitudeTarget.value && this.longitudeTarget.value) {
+      return {
+        lat: parseFloat(this.latitudeTarget.value),
+        lng: parseFloat(this.longitudeTarget.value),
+      }
+    } else {
+      return this.klccCoordinates
+    }
   }
 
   _resetMap() {

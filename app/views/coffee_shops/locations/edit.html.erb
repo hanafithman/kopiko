@@ -12,7 +12,8 @@
       url: coffee_shops_v2_index_path,
       data: {
         controller: "maps",
-        action: "google-maps-callback@window->maps#initializeMap"
+        action: "google-maps-callback@window->maps#initializeMap",
+        maps_coffee_shop_name_value: @coffee_shop.name,
       },
       method: "post" do |f|
     %>
