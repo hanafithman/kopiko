@@ -80,9 +80,6 @@ class Admin::CoffeeShopsController < AdminController
         :description,
         :district,
         :facebook,
-        :google_embed,
-        :google_map,
-        :google_place_id,
         :instagram,
         :lat,
         :lng,
@@ -94,6 +91,11 @@ class Admin::CoffeeShopsController < AdminController
         :tiktok,
         :twitter,
         :whatsapp,
+        google_location_attributes: [
+          :lat,
+          :lng,
+          :place_id,
+        ],
         tag_ids: []
       )
   end
