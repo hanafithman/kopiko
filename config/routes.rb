@@ -50,6 +50,8 @@ Rails.application.routes.draw do
       get "stats"
     end
 
+    resource :location, only: [:edit, :update], module: :coffee_shops
+
     resources :favourites, only: [:create, :destroy]
     resources :check_ins, only: [:create]
     resources :reports, only: [:new, :create]

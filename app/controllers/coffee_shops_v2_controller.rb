@@ -11,7 +11,7 @@ class CoffeeShopsV2Controller < ApplicationController
       redirect_to new_coffee_shops_v2_path, notice: success_message
     else
       @coffee_shop = @coffee_shop.coffee_shop
-      
+
       render :new, status: :unprocessable_entity
     end
   end
