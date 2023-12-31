@@ -2,7 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = {
-    coffeeShopName: String
+    coffeeShopName: String,
+    lat: Number,
+    lng: Number,
+    placeId: String
   }
 
   static targets = [
@@ -11,10 +14,12 @@ export default class extends Controller {
     "locationContainer",
     "locationInput",
     "locationMap",
+    "locationRadio",
     "longitude",
     "placeContainer",
     "placeInput",
     "placeMapContainer",
+    "placeRadio"
   ]
 
   klccCoordinates = { lat: 3.1578, lng: 101.7119 }
@@ -240,14 +245,24 @@ export default class extends Controller {
   }
 
   _resetMap() {
-    this.placeInputTarget.value = ""
-    this.locationInputTarget.value = ""
-    this.googlePlaceIdTarget.value = ""
-    this.latitudeTarget.value = ""
-    this.longitudeTarget.value = ""
+    if (this.placeRadioTarget.checked) {
+      const place = this._placeAutoComplete.getPlace()
 
-    this.placeMarker().setVisible(false)
-    this.locationMarker().setVisible(false)
+      if (place == undefined) {
+        this.googlePlaceIdTarget.value = this.placeIdValue
+        this.latitudeTarget.value = this.latValue
+        this.longitudeTarget.value = this.lngValue
+      } else {
+        this.googlePlaceIdTarget.value = place.place_id
+        this.latitudeTarget.value = place.geometry.location.lat()
+        this.longitudeTarget.value = place.geometry.location.lng()
+      }
+    } else {
+      this.googlePlaceIdTarget.value = ""
+
+      this.latitudeTarget.value = this._locationMarker.getPosition().lat()
+      this.longitudeTarget.value = this._locationMarker.getPosition().lng()
+    }
   }
 
   toggleLocation(e) {

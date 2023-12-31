@@ -14,11 +14,15 @@ class GoogleLocation < ApplicationRecord
   end
 
   def url
-    if place_id.present?
+    if has_place_id?
       "https://www.google.com/maps/place/?q=place_id:#{place_id}"
     else
       "https://www.google.com/maps/?q=#{lat},#{lng}"
     end
+  end
+
+  def has_place_id?
+    place_id.present?
   end
 
   private

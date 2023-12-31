@@ -14,6 +14,9 @@
         controller: "maps",
         action: "google-maps-callback@window->maps#initializeMap",
         maps_coffee_shop_name_value: @coffee_shop.name,
+        maps_place_id_value: @coffee_shop.google_location.place_id,
+        maps_lat_value: @coffee_shop.google_location.lat,
+        maps_lng_value: @coffee_shop.google_location.lng,
       },
       method: "post" do |f|
     %>
@@ -49,7 +52,8 @@
                               type="radio"
                               class="h-4 w-4 border-gray-300 text-brown-600 focus:ring-brown-600"
                               data-action="change->maps#toggleLocation"
-                              checked
+                              data-maps-target="placeRadio"
+                              <%= @coffee_shop.google_location.has_place_id? ? "checked" : "" %>
                             />
                           </div>
                           <div class="ml-3 text-sm leading-6">
@@ -65,7 +69,9 @@
                             </p>
                           </div>
                         </div>
-                        <div class="relative ml-7 h-80" data-maps-target="placeContainer">
+                        <div
+                          class="relative ml-7 h-80 <%= @coffee_shop.google_location.has_place_id? ? "" : "hidden" %>"
+                          data-maps-target="placeContainer">
                           <div style="display: none">
                             <input
                               id="maps-place-input"
@@ -86,6 +92,8 @@
                               type="radio"
                               class="h-4 w-4 border-gray-300 text-brown-600 focus:ring-brown-600"
                               data-action="change->maps#toggleLocation"
+                              data-maps-target="locationRadio"
+                              <%= @coffee_shop.google_location.has_place_id? ? "" : "checked" %>
                             />
                           </div>
                           <div class="ml-3 text-sm leading-6">
@@ -102,7 +110,9 @@
                             </p>
                           </div>
                         </div>
-                        <div class="relative ml-7 h-80 hidden" data-maps-target="locationContainer">
+                        <div
+                          class="relative ml-7 h-80 <%= @coffee_shop.google_location.has_place_id? ? "hidden" : "" %>"
+                          data-maps-target="locationContainer">
                           <div style="display: none">
                             <input
                               id="maps-location-input"
