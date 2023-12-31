@@ -162,19 +162,9 @@ export default class extends Controller {
   locationMarker() {
     if (this._locationMarker != undefined) { return this._locationMarker }
 
-    var latLng = null
-
-    // Prefill some values for editing
-    if (this.latitudeTarget.value != "" || this.longitudeTarget.value != "") {
-      latLng = {
-        lat: parseFloat(this.latitudeTarget.value),
-        lng: parseFloat(this.longitudeTarget.value)
-      }
-    }
-
     this._locationMarker =
       new google.maps.Marker({
-        position: latLng,
+        position: this._initialLocation(),
         map: this.locationMap(),
         draggable: true
       })
@@ -259,6 +249,8 @@ export default class extends Controller {
       }
     } else {
       this.googlePlaceIdTarget.value = ""
+
+      if (this._locationMarker != undefined) { return }
 
       this.latitudeTarget.value = this._locationMarker.getPosition().lat()
       this.longitudeTarget.value = this._locationMarker.getPosition().lng()
