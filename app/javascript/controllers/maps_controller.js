@@ -28,7 +28,7 @@ export default class extends Controller {
   initializeMap() {
     this.placeMap()
     this.placeMarker()
-    this.placeInitialMarker()
+    this.addInitialPlaceMarker()
     this.placeAutoComplete()
 
     this.locationMap()
@@ -69,7 +69,7 @@ export default class extends Controller {
     return this._placeMarker
   }
 
-  placeInitialMarker() {
+  addInitialPlaceMarker() {
     if (this.latitudeTarget.value == "" || this.longitudeTarget.value == "") {
       return
     }
@@ -79,7 +79,7 @@ export default class extends Controller {
       lng: parseFloat(this.longitudeTarget.value)
     }
 
-    this._initialMarker = new google.maps.Marker({
+    this._initialPlaceMarker = new google.maps.Marker({
       position: latLng,
       map: this.placeMap(),
     })
@@ -106,8 +106,8 @@ export default class extends Controller {
       }
 
       // Clear initial marker for edit mode
-      if (this._initialMarker != undefined) {
-        this._initialMarker.setMap(null)
+      if (this._initialPlaceMarker != undefined) {
+        this._initialPlaceMarker.setMap(null)
       }
 
       if (place.geometry.viewport) {
@@ -136,9 +136,11 @@ export default class extends Controller {
       return this._locationMap
     }
 
+    const initialZoom = this.latitudeTarget.value != "" ? 17 : 13
+
     this._locationMap = new google.maps.Map(this.locationMapTarget, {
-      center: this.klccCoordinates,
-      zoom: 13,
+      center: this._initialLocation(),
+      zoom: initialZoom,
       disableDefaultUI: true,
       zoomControl: true,
     })
@@ -155,8 +157,23 @@ export default class extends Controller {
   locationMarker() {
     if (this._locationMarker != undefined) { return this._locationMarker }
 
+    var latLng = null
+
+    // Prefill some values for editing
+    if (this.latitudeTarget.value != "" || this.longitudeTarget.value != "") {
+      latLng = {
+        lat: parseFloat(this.latitudeTarget.value),
+        lng: parseFloat(this.longitudeTarget.value)
+      }
+    }
+
     this._locationMarker =
-      new google.maps.Marker({ map: this.locationMap(), draggable: true })
+      new google.maps.Marker({
+        position: latLng,
+        map: this.locationMap(),
+        draggable: true
+      })
+
     this._locationMarker.addListener("dragend", (e) => {
       this.latitudeTarget.value = e.latLng.lat()
       this.longitudeTarget.value = e.latLng.lng()
