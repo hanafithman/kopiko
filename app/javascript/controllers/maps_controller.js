@@ -28,6 +28,7 @@ export default class extends Controller {
   initializeMap() {
     this.placeMap()
     this.placeMarker()
+    this.placeInitialMarker()
     this.placeAutoComplete()
 
     this.locationMap()
@@ -68,6 +69,22 @@ export default class extends Controller {
     return this._placeMarker
   }
 
+  placeInitialMarker() {
+    if (this.latitudeTarget.value == "" || this.longitudeTarget.value == "") {
+      return
+    }
+
+    const latLng = {
+      lat: parseFloat(this.latitudeTarget.value),
+      lng: parseFloat(this.longitudeTarget.value)
+    }
+
+    this._initialMarker = new google.maps.Marker({
+      position: latLng,
+      map: this.placeMap(),
+    })
+  }
+
   placeAutoComplete() {
     if (this._placeAutoComplete != undefined || !this.hasPlaceInputTarget) {
       return this._placeAutoComplete
@@ -86,6 +103,11 @@ export default class extends Controller {
 
       if (!place.geometry || !place.geometry.location) {
         return
+      }
+
+      // Clear initial marker for edit mode
+      if (this._initialMarker != undefined) {
+        this._initialMarker.setMap(null)
       }
 
       if (place.geometry.viewport) {
